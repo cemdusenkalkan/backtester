@@ -1,6 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 class PerformanceMetrics:
     def __init__(self, trades, account_balance):
@@ -25,34 +25,28 @@ class PerformanceMetrics:
 
     def plot_results(self):
         sns.set(style='whitegrid')
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 8))
 
-        # Plotting Account Balance
-        plt.subplot(221)
-        plt.plot(self.account_balance, color='steelblue', label='Account Balance')
-        plt.title('Account Balance', fontsize=10)
+        trade_indexes = range(len(self.account_balance))
+
+        plt.subplot(311)
+        plt.plot(trade_indexes, self.account_balance, color='steelblue', label='Account Balance')
+        plt.title('Account Balance per Trade', fontsize=10)
         plt.ylabel('Balance ($)', fontsize=9)
         plt.legend(loc='upper left')
 
-        plt.subplot(222)
+        plt.subplot(312)
         cumulative_returns = self.calculate_cumulative_returns()
-        plt.plot(cumulative_returns, color='darkgreen', label='Cumulative Returns')
-        plt.title('Cumulative Returns', fontsize=10)
+        plt.plot(trade_indexes, cumulative_returns, color='darkgreen', label='Cumulative Returns')
+        plt.title('Cumulative Returns per Trade', fontsize=10)
         plt.ylabel('Returns (%)', fontsize=9)
         plt.legend(loc='upper left')
 
-        plt.subplot(223)
+        plt.subplot(313)
         drawdowns = self.calculate_drawdowns()
-        plt.plot(drawdowns, color='crimson', label='Drawdowns')
-        plt.title('Drawdowns', fontsize=10)
+        plt.plot(trade_indexes, drawdowns, color='crimson', label='Drawdowns')
+        plt.title('Drawdowns per Trade', fontsize=10)
         plt.ylabel('Drawdown (%)', fontsize=9)
-        plt.xlabel('Time', fontsize=9)
-        plt.legend(loc='upper left')
-
-        plt.subplot(224)
-        plt.plot([trade['profit'] for trade in self.trades], color='purple', label='Trade P/L')
-        plt.title('Trade Profit/Loss', fontsize=10)
-        plt.ylabel('P/L ($)', fontsize=9)
         plt.xlabel('Trade Number', fontsize=9)
         plt.legend(loc='upper left')
 

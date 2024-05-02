@@ -1,4 +1,7 @@
 # strategy.py
+import pandas as pd
+import numpy as np
+
 
 class Strategy:
     def __init__(self, data):
@@ -26,13 +29,17 @@ class Strategy:
     def generate_signals(self, window=20, num_std_dev=2):
         upper_band, lower_band = self.calculate_bollinger_bands(window, num_std_dev)
         signals = []
-
         for i in range(len(self.data)):
-            if self.data['Close'][i] > upper_band[i]:
+            if pd.isna(upper_band[i]) or pd.isna(lower_band[i]):
+                signals.append('HOLD')
+            elif self.data['Close'][i] > upper_band[i]:
                 signals.append('BUY')
             elif self.data['Close'][i] < lower_band[i]:
                 signals.append('SELL')
             else:
                 signals.append('HOLD')
 
+            if i < 10:
+                print(
+                    f"Index: {i}, Close: {self.data['Close'][i]}, Upper: {upper_band[i]}, Lower: {lower_band[i]}, Signal: {signals[-1]}")
         return signals

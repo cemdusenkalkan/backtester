@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 
+
 class DataManager:
     def load_data(self, filename):
         data = pd.read_csv(filename, delimiter=';')  # because my file uses this as delimiter.

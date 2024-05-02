@@ -25,31 +25,35 @@ class PerformanceMetrics:
 
     def plot_results(self):
         sns.set(style='whitegrid')
-        plt.figure(figsize=(15, 10))
-
-        # Create a color palette for the plots
-        palette = sns.color_palette("mako", 3)
+        plt.figure(figsize=(10, 6))
 
         # Plotting Account Balance
-        plt.subplot(311)
-        plt.plot(self.account_balance, color=palette[0], label='Account Balance')
-        plt.title('Account Balance Over Time')
-        plt.ylabel('Balance ($)')
+        plt.subplot(221)
+        plt.plot(self.account_balance, color='steelblue', label='Account Balance')
+        plt.title('Account Balance', fontsize=10)
+        plt.ylabel('Balance ($)', fontsize=9)
         plt.legend(loc='upper left')
 
-        plt.subplot(312)
+        plt.subplot(222)
         cumulative_returns = self.calculate_cumulative_returns()
-        plt.plot(cumulative_returns, color=palette[1], label='Cumulative Returns')
-        plt.title('Cumulative Returns')
-        plt.ylabel('Returns (%)')
+        plt.plot(cumulative_returns, color='darkgreen', label='Cumulative Returns')
+        plt.title('Cumulative Returns', fontsize=10)
+        plt.ylabel('Returns (%)', fontsize=9)
         plt.legend(loc='upper left')
 
-        plt.subplot(313)
+        plt.subplot(223)
         drawdowns = self.calculate_drawdowns()
-        plt.plot(drawdowns, color=palette[2], label='Drawdowns')
-        plt.title('Drawdowns')
-        plt.ylabel('Drawdown (%)')
-        plt.xlabel('Time')
+        plt.plot(drawdowns, color='crimson', label='Drawdowns')
+        plt.title('Drawdowns', fontsize=10)
+        plt.ylabel('Drawdown (%)', fontsize=9)
+        plt.xlabel('Time', fontsize=9)
+        plt.legend(loc='upper left')
+
+        plt.subplot(224)
+        plt.plot([trade['profit'] for trade in self.trades], color='purple', label='Trade P/L')
+        plt.title('Trade Profit/Loss', fontsize=10)
+        plt.ylabel('P/L ($)', fontsize=9)
+        plt.xlabel('Trade Number', fontsize=9)
         plt.legend(loc='upper left')
 
         plt.tight_layout()

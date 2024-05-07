@@ -1,4 +1,5 @@
 # strategy.py
+
 import pandas as pd
 import numpy as np
 
@@ -23,10 +24,9 @@ class Strategy:
         low_close = np.abs(self.data['Low'] - self.data['Close'].shift())
         ranges = pd.concat([high_low, high_close, low_close], axis=1)
         true_range = np.max(ranges, axis=1)
-        atr = true_range.rolling(window=window).mean()
-        return atr
+        return true_range.rolling(window=window).mean()
 
-    def generate_signals(self, window=20, num_std_dev=2):
+    def generate_signals(self, window=14, num_std_dev=2.2):
         upper_band, lower_band = self.calculate_bollinger_bands(window, num_std_dev)
         signals = []
         for i in range(len(self.data)):
@@ -38,8 +38,4 @@ class Strategy:
                 signals.append('SELL')
             else:
                 signals.append('HOLD')
-
-            if i < 10:
-                print(
-                    f"Index: {i}, Close: {self.data['Close'][i]}, Upper: {upper_band[i]}, Lower: {lower_band[i]}, Signal: {signals[-1]}")
         return signals

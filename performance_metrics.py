@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import numpy as np
 
 class PerformanceMetrics:
@@ -24,31 +24,52 @@ class PerformanceMetrics:
         return drawdowns
 
     def plot_results(self):
-        sns.set(style='whitegrid')
-        plt.figure(figsize=(12, 8))
-
-        trade_indexes = range(len(self.account_balance))
-
-        plt.subplot(311)
-        plt.plot(trade_indexes, self.account_balance, color='steelblue', label='Account Balance')
-        plt.title('Account Balance per Trade', fontsize=10)
-        plt.ylabel('Balance ($)', fontsize=9)
-        plt.legend(loc='upper left')
-
-        plt.subplot(312)
+        # Prepare data
+        trade_indexes = np.arange(len(self.account_balance))
         cumulative_returns = self.calculate_cumulative_returns()
-        plt.plot(trade_indexes, cumulative_returns, color='darkgreen', label='Cumulative Returns')
-        plt.title('Cumulative Returns per Trade', fontsize=10)
-        plt.ylabel('Returns (%)', fontsize=9)
-        plt.legend(loc='upper left')
-
-        plt.subplot(313)
         drawdowns = self.calculate_drawdowns()
-        plt.plot(trade_indexes, drawdowns, color='crimson', label='Drawdowns')
-        plt.title('Drawdowns per Trade', fontsize=10)
-        plt.ylabel('Drawdown (%)', fontsize=9)
-        plt.xlabel('Trade Number', fontsize=9)
-        plt.legend(loc='upper left')
 
-        plt.tight_layout()
-        plt.show()
+        # Create subplots
+        fig = make_subplots(
+            rows=3, cols=1,
+            shared_xaxes=True,
+            subplot_titles=("Account Balance", "Cumulative Returns", "Drawdowns"),
+            vertical_spacing=0.1
+        )
+
+        # Plot Account Balance
+        fig.add_trace(
+            go.Scatter(x=trade_indexes, y=self.account_balance, mode='lines', name='Account Balance',
+                       line=dict(color='RoyalBlue'), hoverinfo='y+name'),
+            row=1, col=1
+        )
+
+        # Plot Cumulative Returns
+        fig.add_trace(
+            go.Scatter(x=trade_indexes, y=cumulative_returns, mode='lines', name='Cumulative Returns',
+                       line=dict(color='Green'), hoverinfo='y+name'),
+            row=2, col=1
+        )
+
+        # Plot Drawdowns
+        fig.add_trace(
+            go.Scatter(x=trade_indexes, y=drawdowns, mode='lines', name='Drawdowns',
+                       line=dict(color='Crimson'), hoverinfo='y+name'),
+            row=3, col=1
+        )
+
+        # Update x-axis and y-axis labels
+        fig.update_xaxes(title_text="Trade Number", row=3, col=1)
+        fig.update_yaxes(title_text="Balance ($)", row=1, col=1)
+        fig.update_yaxes(title_text="Returns (%)", row=2, col=1)
+        fig.update_yaxes(title_text="Drawdown (%)", row=3, col=1)
+
+        # Update layout
+        fig.update_layout(
+            height=900, width=700,
+            title_text="Trading Performance Metrics",
+            hovermode='x unified'
+        )
+
+        # Show plot
+        fig.show()

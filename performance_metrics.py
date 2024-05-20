@@ -1,5 +1,5 @@
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 
 class PerformanceMetrics:
@@ -15,7 +15,16 @@ class PerformanceMetrics:
     def calculate_sharpe_ratio(self, risk_free_rate=0.0):
         returns = np.diff(self.account_balance) / self.account_balance[:-1]
         excess_returns = returns - risk_free_rate
-        sharpe_ratio = np.mean(excess_returns) / np.std(excess_returns) * np.sqrt(252)
+
+        # Remove NaN values from excess_returns
+        excess_returns = excess_returns[~np.isnan(excess_returns)]
+
+        # Check for zero standard deviation
+        std_excess_returns = np.std(excess_returns)
+        if std_excess_returns == 0:
+            return np.nan
+
+        sharpe_ratio = np.mean(excess_returns) / std_excess_returns * np.sqrt(252)
         return sharpe_ratio
 
     def calculate_drawdowns(self):
@@ -23,53 +32,61 @@ class PerformanceMetrics:
         drawdowns = (self.account_balance - max_balance) / max_balance
         return drawdowns
 
-    def plot_results(self):
-        # Prepare data
-        trade_indexes = np.arange(len(self.account_balance))
-        cumulative_returns = self.calculate_cumulative_returns()
-        drawdowns = self.calculate_drawdowns()
+    def plot_results(self, top_results=None):
+        sns.set(style='whitegrid')
+        plt.figure(figsize=(12, 8))
 
-        # Create subplots
-        fig = make_subplots(
-            rows=3, cols=1,
-            shared_xaxes=True,
-            subplot_titles=("Account Balance", "Cumulative Returns", "Drawdowns"),
-            vertical_spacing=0.1
-        )
+        if top_results:
+            for i, result in enumerate(top_results):
+                trade_indexes = range(len(result['Account Balance']))
+                plt.subplot(311)
+                plt.plot(trade_indexes, result['Account Balance'], label=f'Result {i+1}')
+            plt.title('Account Balance per Trade', fontsize=10)
+            plt.ylabel('Balance ($)', fontsize=9)
+            plt.legend(loc='upper left')
 
-        # Plot Account Balance
-        fig.add_trace(
-            go.Scatter(x=trade_indexes, y=self.account_balance, mode='lines', name='Account Balance',
-                       line=dict(color='RoyalBlue'), hoverinfo='y+name'),
-            row=1, col=1
-        )
+            plt.subplot(312)
+            for i, result in enumerate(top_results):
+                cumulative_returns = np.array(result['Account Balance']) / result['Account Balance'][0] - 1
+                trade_indexes = range(len(result['Account Balance']))
+                plt.plot(trade_indexes, cumulative_returns, label=f'Result {i+1}')
+            plt.title('Cumulative Returns per Trade', fontsize=10)
+            plt.ylabel('Returns (%)', fontsize=9)
+            plt.legend(loc='upper left')
 
-        # Plot Cumulative Returns
-        fig.add_trace(
-            go.Scatter(x=trade_indexes, y=cumulative_returns, mode='lines', name='Cumulative Returns',
-                       line=dict(color='Green'), hoverinfo='y+name'),
-            row=2, col=1
-        )
+            plt.subplot(313)
+            for i, result in enumerate(top_results):
+                max_balance = np.maximum.accumulate(result['Account Balance'])
+                drawdowns = (result['Account Balance'] - max_balance) / max_balance
+                trade_indexes = range(len(result['Account Balance']))
+                plt.plot(trade_indexes, drawdowns, label=f'Result {i+1}')
+            plt.title('Drawdowns per Trade', fontsize=10)
+            plt.ylabel('Drawdown (%)', fontsize=9)
+            plt.xlabel('Trade Number', fontsize=9)
+            plt.legend(loc='upper left')
+        else:
+            trade_indexes = range(len(self.account_balance))
 
-        # Plot Drawdowns
-        fig.add_trace(
-            go.Scatter(x=trade_indexes, y=drawdowns, mode='lines', name='Drawdowns',
-                       line=dict(color='Crimson'), hoverinfo='y+name'),
-            row=3, col=1
-        )
+            plt.subplot(311)
+            plt.plot(trade_indexes, self.account_balance, color='steelblue', label='Account Balance')
+            plt.title('Account Balance per Trade', fontsize=10)
+            plt.ylabel('Balance ($)', fontsize=9)
+            plt.legend(loc='upper left')
 
-        # Update x-axis and y-axis labels
-        fig.update_xaxes(title_text="Trade Number", row=3, col=1)
-        fig.update_yaxes(title_text="Balance ($)", row=1, col=1)
-        fig.update_yaxes(title_text="Returns (%)", row=2, col=1)
-        fig.update_yaxes(title_text="Drawdown (%)", row=3, col=1)
+            plt.subplot(312)
+            cumulative_returns = self.calculate_cumulative_returns()
+            plt.plot(trade_indexes, cumulative_returns, color='darkgreen', label='Cumulative Returns')
+            plt.title('Cumulative Returns per Trade', fontsize=10)
+            plt.ylabel('Returns (%)', fontsize=9)
+            plt.legend(loc='upper left')
 
-        # Update layout
-        fig.update_layout(
-            height=900, width=700,
-            title_text="Trading Performance Metrics",
-            hovermode='x unified'
-        )
+            plt.subplot(313)
+            drawdowns = self.calculate_drawdowns()
+            plt.plot(trade_indexes, drawdowns, color='crimson', label='Drawdowns')
+            plt.title('Drawdowns per Trade', fontsize=10)
+            plt.ylabel('Drawdown (%)', fontsize=9)
+            plt.xlabel('Trade Number', fontsize=9)
+            plt.legend(loc='upper left')
 
-        # Show plot
-        fig.show()
+        plt.tight_layout()
+        plt.show()

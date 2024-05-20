@@ -1,18 +1,17 @@
-# strategy.py
-
 import pandas as pd
 import numpy as np
 
-
 class Strategy:
-    def __init__(self, data):
+    def __init__(self, data, bollinger_window=20, bollinger_std_dev=2.0):
         self.data = data
+        self.bollinger_window = bollinger_window
+        self.bollinger_std_dev = bollinger_std_dev
 
-    def calculate_bollinger_bands(self, window=20, num_std_dev=2):
-        rolling_mean = self.data['Close'].rolling(window=window).mean()
-        rolling_std = self.data['Close'].rolling(window=window).std()
-        upper_band = rolling_mean + num_std_dev * rolling_std
-        lower_band = rolling_mean - num_std_dev * rolling_std
+    def calculate_bollinger_bands(self):
+        rolling_mean = self.data['Close'].rolling(window=self.bollinger_window).mean()
+        rolling_std = self.data['Close'].rolling(window=self.bollinger_window).std()
+        upper_band = rolling_mean + self.bollinger_std_dev * rolling_std
+        lower_band = rolling_mean - self.bollinger_std_dev * rolling_std
         return upper_band, lower_band
 
     def calculate_moving_average(self, window=20):
@@ -24,10 +23,11 @@ class Strategy:
         low_close = np.abs(self.data['Low'] - self.data['Close'].shift())
         ranges = pd.concat([high_low, high_close, low_close], axis=1)
         true_range = np.max(ranges, axis=1)
-        return true_range.rolling(window=window).mean()
+        atr = true_range.rolling(window=window).mean()
+        return atr
 
-    def generate_signals(self, window=14, num_std_dev=2.2):
-        upper_band, lower_band = self.calculate_bollinger_bands(window, num_std_dev)
+    def generate_signals(self):
+        upper_band, lower_band = self.calculate_bollinger_bands()
         signals = []
         for i in range(len(self.data)):
             if pd.isna(upper_band[i]) or pd.isna(lower_band[i]):

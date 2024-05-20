@@ -17,7 +17,7 @@ class Backtester:
         signals = self.strategy.generate_signals()
 
         for i in range(len(self.data) - 1, 0, -1):
-            if pd.isna(atr[i]):
+            if pd.isna(atr[i]) or atr[i] == 0:  # Skip if ATR is NaN or zero
                 continue
 
             current_price = self.data['Close'][i]
@@ -63,10 +63,13 @@ class Backtester:
 
             self.account_balance.append(balance)
 
+        # Convert account balance list to a Pandas Series
+        self.account_balance = pd.Series(self.account_balance)
+
         results = {
             'Final Balance': balance,
             'Total Trades': trade_count,
-            'Trades': self.trades,
+            'Trades': pd.DataFrame(self.trades),  # Ensure trades are returned as a DataFrame
             'Account Balance': self.account_balance
         }
 

@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import pandas as pd
+
 
 class PerformanceMetrics:
     def __init__(self, trades, account_balance):
@@ -12,17 +14,17 @@ class PerformanceMetrics:
         cumulative_returns = np.array(self.account_balance) / initial_balance - 1
         return cumulative_returns
 
-    def calculate_sharpe_ratio(self, risk_free_rate=0.0):
-        returns = np.diff(self.account_balance) / self.account_balance[:-1]
-        excess_returns = returns - risk_free_rate
+    def calculate_sharpe_ratio(self):
+        returns = self.account_balance.pct_change().dropna()
+        mean_return = returns.mean()
+        std_return = returns.std()
+        sharpe_ratio = mean_return / std_return
 
-        # Remove NaN values from excess_returns
-        excess_returns = excess_returns[~np.isnan(excess_returns)]
+        # Handle NaN or infinity
+        if np.isnan(sharpe_ratio) or np.isinf(sharpe_ratio):
+            sharpe_ratio = np.nan
 
-        # Check for zero standard deviation
-        std_excess_returns = np.std(excess_returns)
-        if std_excess_returns == 0:
-            return np.nan
+        return sharpe_ratio
 
         sharpe_ratio = np.mean(excess_returns) / std_excess_returns * np.sqrt(252)
         return sharpe_ratio

@@ -1,14 +1,14 @@
-# data_manager.py
-
 import pandas as pd
 import numpy as np
 
-
 class DataManager:
     def load_data(self, filename):
-        data = pd.read_csv(filename, delimiter=';')  # because my file uses this as delimiter.
+        data = pd.read_csv(filename)
+
+        # Strip any extra whitespace from column names
         data.columns = data.columns.str.strip()
 
+        # Fill missing values
         data.fillna(method='ffill', inplace=True)
         data.fillna(method='bfill', inplace=True)
 
@@ -20,10 +20,3 @@ class DataManager:
 
         print("Data loaded and processed:", data.head())
         return data
-
-
-
-
-
-
-

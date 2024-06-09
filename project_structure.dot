@@ -1,0 +1,15 @@
+digraph G {
+    node [shape=box];
+
+    "DataManager" -> "Main";
+    "Strategy" -> "Main";
+    "Backtester" -> "Main";
+    "PerformanceMetrics" -> "Main";
+    "HyperparameterOptimization" -> "Main";
+
+    "Main" -> "DataManager" [label="uses"];
+    "Main" -> "Strategy" [label="uses"];
+    "Main" -> "Backtester" [label="uses"];
+    "Main" -> "PerformanceMetrics" [label="uses"];
+    "Main" -> "HyperparameterOptimization" [label="uses"];
+}

@@ -5,4 +5,4 @@ backtesting app of mine, there were no app i can use in the way i want, so i dec
 
 trying to find out how to best parameters in any dataset objectively, random or grid search doesnt work, random doesnt find it, grid cant because of complexity of searching
 
-(https://github.com/cemdusenkalkan/backtester/blob/main/project_structure.png)
+![structure](https://github.com/cemdusenkalkan/backtester/blob/main/project_structure.png)
